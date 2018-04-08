@@ -1,10 +1,43 @@
 version: "3.1"
 services:
-  home_report:
-    image: redis:latest
-    build: .
-    secrets:
-      - nest_token
+
+    home_report:
+        build: .
+        secrets:
+            - nest_token
+
+    influxdb:
+        image: influxdb:1.5-alpine
+        ports:
+            - 8086:8086
+        volumes:
+            - ./volumes/influxdb/:/var/lib/influxdb
+            - ./influxdb/init-influxdb.sh:/init-influxdb.sh
+        environment:
+            - INFLUXDB_DB=home_report
+            - INFLUXDB_ADMIN_USER=admin
+            - INFLUXDB_READ_USER=reader
+            - INFLUXDB_WRITE_USER=writer
+            - INFLUXDB_REPORTING_DISABLED=false
+            - INFLUXDB_HTTP_AUTH_ENABLED=true
+        secrets:
+            - influxdb_admin_password
+            - influxdb_read_user_password
+            - influxdb_write_user_password
+
+    grafana:
+        image: grafana/grafana:5.0.4
+        ports:
+            - 3000:3000
+        volumes:
+            - ./volumes/grafana/:/var/lib/grafana
+
 secrets:
-  nest_token:
-    file: ./secrets/nest_token.txt
+    nest_token:
+        file: ./secrets/nest_token
+    influxdb_admin_password:
+        file: ./secrets/influxdb_admin_password
+    influxdb_read_user_password:
+        file: ./secrets/influxdb_read_user_password
+    influxdb_write_user_password:
+        file: ./secrets/influxdb_write_user_password
