@@ -3,8 +3,14 @@ services:
 
     home_report:
         build: .
+        environment:
+            - INFLUXDB_USER=writer
+            - INFLUXDB_HOST=influxdb
+            - INFLUXDB_PORT=8086
         secrets:
             - nest_token
+            - source: influxdb_write_user_password
+              target: influx_pass
 
     influxdb:
         image: influxdb:1.5-alpine
