@@ -62,3 +62,7 @@ secrets/
 
 # Volumes
 volumes/
+
+# Mac
+.DS_Store
+
