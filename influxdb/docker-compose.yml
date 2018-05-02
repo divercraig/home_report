@@ -1,0 +1,21 @@
+version: "3.1"
+services:
+    influxdb:
+        image: influxdb:1.5-alpine
+        ports:
+            - 8086:8086
+        volumes:
+            - /mnt/volume-lon1-01/infuxdb:/var/lib/influxdb:z
+            - /etc/letsencrypt/:/etc/.ssh/:z
+            - ./influxdb.conf:/etc/influxdb/influxdb.conf:z
+        environment:
+            - INFLUXDB_DB=home_report
+            - INFLUXDB_ADMIN_USER=admin
+            - INFLUXDB_ADMIN_PASSWORD=admin_pass
+            - INFLUXDB_READ_USER=reader
+            - INFLUXDB_READ_USER_PASSWORD=read_pass
+            - INFLUXDB_WRITE_USER=writer
+            - INFLUXDB_WRITE_USER_PASSWORD=write_pass
+            - INFLUXDB_REPORTING_DISABLED=false
+            - INFLUXDB_HTTP_AUTH_ENABLED=true
+
