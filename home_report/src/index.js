@@ -1,21 +1,15 @@
 var request = require("request");
 var fs = require('fs')
 
-var influx_host;
-var influx_port;
-var influx_user;
-var influx_password;
-var nest_token;
-
-
 var initInflux = function() {
     const Influx = require('influx');
     const influx = new Influx.InfluxDB({
+     protocol: "https",
      host: process.env.INFLUXDB_HOST,
      port: process.env.INFLUXDB_PORT,
      database: "home_report",
      username: process.env.INFLUXDB_USER,
-     password: influx_password,
+     password: process.env.INFLUXDB_USER_PASSWORD,
      schema: [
        {
          measurement: "thermostat",
@@ -36,6 +30,7 @@ var initInflux = function() {
 
 var logToInflux = function(metrics) {
     var influx = initInflux();
+    console.log(metrics);
     influx.writePoints(metrics).then(
         () => {console.log("Write to InfluxDB complete");},
         (err) => {console.log("Failed to write to InfluxDb: " + err);}
@@ -70,7 +65,7 @@ var requestNestData = function() {
         url: 'https://developer-api.nest.com/',
         headers: {
             'cache-control': 'no-cache',
-            'authorization': nest_token,
+            'authorization': process.env.NEST_TOKEN,
             'content-type': 'application/json'
         }
     };
@@ -78,44 +73,4 @@ var requestNestData = function() {
     request(options, handleNestResponse);
 };
 
-const initialise = function() {
-    try{
-        nest_token =
-            fs.readFileSync('/run/secrets/nest_token', 'utf8').trim();
-    } catch(e) {
-        console.log("unable to read /run/secrets/nest_token: " + e);
-        throw e;
-    }
-
-    try{
-        influx_password =
-            fs.readFileSync('/run/secrets/influx_pass', 'utf8').trim();
-    } catch(e) {
-        console.log("unable to read /run/secrets/influx_pass: " + e);
-        throw e;
-    }
-
-    if (process.env.INFLUXDB_HOST) {
-        influx_host = process.env.INFLUXDB_HOST;
-    } else {
-        console.log("Missing env variable:INFLUXDB_HOST");
-        throw new exception("Missing env variable:INFLUXDB_HOST");
-    }
-
-    if (process.env.INFLUXDB_PORT) {
-        influx_port = process.env.INFLUXDB_PORT;
-    } else {
-        console.log("Missing env variable:INFLUXDB_PORT");
-        throw new exception("Missing env variable:INFLUXDB_PORT");
-    }
-
-    if (process.env.INFLUXDB_USER) {
-        influx_user = process.env.INFLUXDB_USER;
-    } else {
-        console.log("Missing env variable:INFLUXDB_USER");
-        throw new exception("Missing env variable:INFLUXDB_USER");
-    }
-};
-
-initialise();
 requestNestData();

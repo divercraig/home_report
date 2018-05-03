@@ -5,19 +5,16 @@ services:
         build: .
         environment:
             - INFLUXDB_USER=writer
-            - INFLUXDB_HOST=influxdb
+            - INFLUXDB_USER_PASSWORD=xxxxxx
+            - INFLUXDB_HOST=www.craigwarren.co.uk
             - INFLUXDB_PORT=8086
+            - NEST_TOKEN=xxxx
         secrets:
             - nest_token
             - source: influxdb_write_user_password
               target: influx_pass
 
-    grafana:
-        image: grafana/grafana:5.0.4
-        ports:
-            - 3000:3000
-        volumes:
-            - ./volumes/grafana/:/var/lib/grafana
+
 
 secrets:
     nest_token:
